@@ -15,6 +15,9 @@ from teleInfoEth import TeleInfoEth
 IP = "192.168.1.32"
 PORT = 4444
 
+lastTeleinfoTime = 0
+
+
 app = Flask(__name__)
 api = Api(app)
 
@@ -29,15 +32,25 @@ def parameter(mesures, par, seg, default):
     return str
 
 class Status(Resource):
+    
+    lastTime = 0
+    
     def gen(self):
         
         mesures = mTeleInfoEth.mesures()
         print "Status ", mesures
         
+        if "time" in mesures:
+            if Status.lastTime == mesures['time']:
+                mesures = {}
+                print "Not new Mesures"
+            else:
+                Status.lastTime = mesures['time']
+        
         yield '<?xml version="1.0" encoding="ISO-8859-1"?>'
         yield '<response>'
-        # yield '<date>52902</date>'
-        # yield '<time0>15:09</time0>'
+        yield parameter(mesures, "date", "date", "")
+        yield parameter(mesures, "heure", "time0", "")
         yield '<config_hostname>ecoLinky</config_hostname>'
         # yield '<config_mac>00:05:A3:A2:58:14</config_mac>'
         yield '<http_port>4000</http_port>'
@@ -77,8 +90,19 @@ class Status(Resource):
         
 class Teleinfo(Resource):
         
+    lastTime = 0
+        
     def gen(self):
         mesures = mTeleInfoEth.mesures()
+        print "Teleinfo ", mesures
+        
+        if "time" in mesures:
+            if Teleinfo.lastTime == mesures['time']:
+                mesures = {}
+                print "Not new Mesures"
+            else:
+                Teleinfo.lastTime = mesures['time']
+        
         yield '<?xml version="1.0" encoding="ISO-8859-1"?>'
         yield '<response>'
         yield parameter(mesures, "ADCO", "T1_ADCO", 0)

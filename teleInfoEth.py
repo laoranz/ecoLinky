@@ -40,6 +40,7 @@ class TeleInfoEth:
             try:
                 mSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 mSocket.connect((self.ip, self.port))
+                mSocket.settimeout ( 60 )
             except socket.error:
                 print "Connexion echoue"
                 time.sleep(5)
@@ -47,15 +48,23 @@ class TeleInfoEth:
                 
             print "Connexion etablie avec le serveur."             
             
-            data = mSocket.recv(1024)
+            try:
+                data = mSocket.recv(1024)
+            except socket.error:
+                print "Reception error"
+                mSocket.close()
+                time.sleep(5)
+                continue
+                
             # print "data0 %s" % data
             while data:
                 self.teleInfoProtocol.addData ( data )
 
                 try:
                     time.sleep(1)
+                    print "waiting ..."
                     data = mSocket.recv(1024)
-                    # print "receive %d data" % len(data)
+                    print "receive %d data" % len(data)
                 except socket.error:
                     print "Reception error"
                     break

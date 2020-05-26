@@ -56,15 +56,19 @@ class TeleInfoProtocol:
     
         data = {}
         for line in "".join(self.frame).split(CR+LF):
-            self.parseLine(data, line)
+            if not self.parseLine(data, line):
+                return
         
+        data['time'] = time.time()
+        data['date'] = time.strftime("%d-%m-%Y", time.localtime())
+        data['heure'] = time.strftime("%H:%M:%S", time.localtime())
         self.mesures = data
         print "mesures ", self.mesures
         
     def parseLine(self, data, line):
 
         if not self.checkCrc (line):
-            return
+            return False
         
         ht = line[-2]
         pameters = "".join(line).split(ht)
@@ -76,9 +80,15 @@ class TeleInfoProtocol:
             del pameters[-1]
         
         data[pameters[0]] = pameters[-1]
+        
+        return True
     
     def checkCrc(self, pameters):
-
+    
+        if len(pameters) < 3:
+            print "len(pameters) < 3"
+            return False
+            
         sum = 0
         for c in bytearray(pameters):
             sum += c
