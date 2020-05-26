@@ -1,0 +1,13 @@
+[Unit]
+      Description=ecolinky_service
+      
+[Service]
+      ExecStart=/usr/bin/gunicorn -b 0.0.0.0:4000 --pythonpath /home/houedon/domoticz/plugins/ecoLinky/ ecoLinky:app
+      WorkingDirectory=/home/houedon/domoticz/plugins/ecoLinky
+
+      Restart=on-failure
+      RestartSec=1m
+      
+[Install]
+      WantedBy=multi-user.target
+      
