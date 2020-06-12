@@ -49,9 +49,10 @@ class TeleInfoProtocol:
         
     def parseFrame(self):
         
-        if self.frame[0] == LF:
+        if len(self.frame) > 0 and self.frame[0] == LF:
             del self.frame[0]
-        if self.frame[-1] == CR:
+            
+        if len(self.frame) > 0 and self.frame[-1] == CR:
             del self.frame[-1]
     
         data = {}
